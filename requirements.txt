@@ -1,0 +1,4 @@
+requests
+fpdf
+html2text
+reportlab
