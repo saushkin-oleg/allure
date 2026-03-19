@@ -5,7 +5,7 @@ from datetime import datetime
 
 from src.allure_api import AllureAPI
 from src.pdf_generator import PDFGenerator
-from src.utils.step_parser import parse_steps
+from src.utils import parse_steps  # ИЗМЕНЕНО: импорт из utils вместо step_parser
 
 logger = logging.getLogger(__name__)
 

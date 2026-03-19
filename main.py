@@ -9,6 +9,7 @@ import json
 import logging
 import sys
 from pathlib import Path
+from typing import Dict, Optional
 
 from src.allure_api import AllureAPI
 from src.pdf_generator import PDFGenerator
@@ -23,7 +24,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_config(config_path: str = "config.json") -> dict:
+CONFIG_TEMPLATE = {
+    "api_token": "your_api_token_here",
+    "allure_url": "https://allure-testops.office.it-bastion.com",
+    "output_dir": "./exports",
+    "testplan_id": 39,
+    "testcase_id": 4448,
+    "project_id": 3,
+    "filter_prefix": "NTPR"
+}
+
+def load_config(config_path: str = "config.json") -> Dict:
     """Загрузка конфигурации из JSON файла"""
     try:
         with open(config_path, 'r', encoding='utf-8') as f:
@@ -41,26 +52,16 @@ def load_config(config_path: str = "config.json") -> dict:
         
     except FileNotFoundError:
         logger.error(f"❌ Файл конфигурации {config_path} не найден")
-        create_config_template(config_path)
+        _create_config_template(config_path)
         sys.exit(1)
     except json.JSONDecodeError:
         logger.error(f"❌ Ошибка парсинга JSON в файле {config_path}")
         sys.exit(1)
 
-def create_config_template(config_path: str):
-    """Создание шаблона файла конфигурации"""
-    template = {
-        "api_token": "your_api_token_here",
-        "allure_url": "https://allure-testops.office.it-bastion.com",
-        "output_dir": "./exports",
-        "testplan_id": 39,
-        "testcase_id": 4448,
-        "project_id": 3,
-        "filter_prefix": "NTPR"
-    }
-    
+def _create_config_template(config_path: str):
+    """Создание шаблона файла конфигурации (внутренняя функция)"""
     with open(config_path, 'w', encoding='utf-8') as f:
-        json.dump(template, f, indent=4, ensure_ascii=False)
+        json.dump(CONFIG_TEMPLATE, f, indent=4, ensure_ascii=False)
     
     logger.info(f"📝 Создан шаблон конфигурации: {config_path}")
     logger.info("✏️ Заполните его реальными данными и запустите скрипт снова")
@@ -99,7 +100,7 @@ def main():
     output_dir = Path(config['output_dir'])
     
     # Экспортируем в зависимости от режима
-    if args.mode in ['testplan', 'both']:
+    if args.mode in ('testplan', 'both'):
         exporter = TestPlanExporter(api, pdf_gen, output_dir / "testplan")
         exporter.export(
             testplan_id=config['testplan_id'],
@@ -108,7 +109,7 @@ def main():
             include_raw_in_pdf=args.include_raw_pdf
         )
     
-    if args.mode in ['single', 'both']:
+    if args.mode == 'single' or (args.mode == 'both' and args.testcase_id):
         exporter = SingleTestExporter(api, pdf_gen, output_dir / "debug")
         exporter.export(
             testcase_id=config['testcase_id'],

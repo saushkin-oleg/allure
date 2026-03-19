@@ -68,10 +68,6 @@ class AllureAPI:
         """Получение шагов тест-кейса через эндпоинт /step"""
         return self.fetch(f"testcase/{testcase_id}/step", params={'projectId': project_id})
     
-    def get_testcase_scenario(self, testcase_id: int, project_id: int) -> Optional[Dict]:
-        """Получение сценария тест-кейса (альтернативный метод)"""
-        return self.fetch(f"testcase/{testcase_id}/scenario", params={'projectId': project_id})
-    
     def get_testcase_comments(self, testcase_id: int, project_id: int, size: int = 50) -> Optional[Dict]:
         """Получение комментариев к тест-кейсу"""
         return self.fetch("comment", params={
@@ -90,7 +86,7 @@ class AllureAPI:
     
     def get_testcase_attachments(self, testcase_id: int, project_id: int, size: int = 50) -> Optional[Dict]:
         """Получение вложений тест-кейса"""
-        return self.fetch("testcase/attachment", params={
+        return self.fetch("testcase/attachment", params={  # ВОЗВРАЩАЕМ СТАРЫЙ ЭНДПОИНТ
             'testCaseId': testcase_id,
             'projectId': project_id,
             'size': size
@@ -99,7 +95,7 @@ class AllureAPI:
     def get_testcases_from_testplan(self, testplan_id: int, project_id: int, 
                                      page_size: int = 100, max_pages: int = 20) -> List[Dict]:
         """
-        Получение всех тест-кейсов из тест-плана с пагинацией
+        Получение всех тест-кейсов из тест-плана с пагинацией - ВОЗВРАЩАЕМ СТАРУЮ ВЕРСИЮ
         
         Args:
             testplan_id: ID тест-плана

@@ -9,9 +9,9 @@ from reportlab.pdfbase.ttfonts import TTFont
 import html
 import logging
 import json
+import datetime
 
-from src.utils.html_cleaner import clean_html
-from src.utils.date_formatter import format_timestamp
+from src.utils import clean_html, format_timestamp, remove_bold_markers  # Добавляем импорт
 
 logger = logging.getLogger(__name__)
 
@@ -134,10 +134,11 @@ class PDFGenerator:
         result = []
         indent = "   " * level
         
-        # Основной текст шага
+        # Основной текст шага - очищаем от ** и HTML
         step_body = step.get('body', '')
         if step_body:
             step_body = clean_html(step_body)
+            step_body = remove_bold_markers(step_body)  # Убираем **
             result.append(Paragraph(f"{indent}• {html.escape(step_body)}", self.normal_style))
         
         # Отображаем ожидаемые результаты
@@ -150,8 +151,7 @@ class PDFGenerator:
             expected_body = expected.get('body', '')
             if expected_body:
                 expected_body = clean_html(expected_body)
-                # Заменяем квадратик на тире и добавляем отступ
-                # Увеличиваем отступ на два уровня для самих результатов
+                expected_body = remove_bold_markers(expected_body)  # Убираем **
                 result.append(Paragraph(f"{indent}      - {html.escape(expected_body)}", self.normal_style))
                 
                 # Если у ожидаемого результата есть дочерние шаги
@@ -166,7 +166,26 @@ class PDFGenerator:
             result.extend(self._format_step(child, level + 1))
         
         return result
-    
+
+    def _prepare_text(self, text: str) -> str:
+        """
+        Подготовка текста для отображения в PDF:
+        - очистка HTML
+        - удаление маркдаун-разметки **
+        - экранирование специальных символов
+        
+        Args:
+            text: исходный текст
+            
+        Returns:
+            подготовленный текст
+        """
+        if not text:
+            return ""
+        text = clean_html(text)
+        text = remove_bold_markers(text)
+        return html.escape(text)
+
     def generate_testcase_pdf(self, testcase_data: Dict, output_path: Path, 
                               include_raw_data: bool = False):
         """
@@ -196,13 +215,12 @@ class PDFGenerator:
         if generated_at:
             story.append(Paragraph(f"Сгенерировано: {format_timestamp(generated_at)}", self.date_style))
         else:
-            import datetime
             story.append(Paragraph(f"Сгенерировано: {datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S')}", self.date_style))
         story.append(Spacer(1, 10*mm))
         
         # Название
         story.append(Paragraph("📌 Название", self.heading_style))
-        story.append(Paragraph(html.escape(testcase_data.get('name', 'Без имени')), self.normal_style))
+        story.append(Paragraph(self._prepare_text(testcase_data.get('name', 'Без имени')), self.normal_style))
         story.append(Spacer(1, 5*mm))
         
         # Мета-информация
@@ -240,11 +258,11 @@ class PDFGenerator:
         desc = testcase_data.get('description', '') or testcase_data.get('descriptionHtml', '')
         if desc:
             story.append(Paragraph("📝 Описание", self.heading_style))
-            desc = clean_html(desc)
-            if desc:
-                story.append(Paragraph(html.escape(desc), self.normal_style))
+            prepared_desc = self._prepare_text(desc)
+            if prepared_desc:
+                story.append(Paragraph(prepared_desc, self.normal_style))
             else:
-                story.append(Paragraph("<i>(описание пустое после очистки HTML)</i>", self.meta_style))
+                story.append(Paragraph("<i>(описание пустое после очистки)</i>", self.meta_style))
         else:
             story.append(Paragraph("📝 Описание", self.heading_style))
             story.append(Paragraph("<i>(отсутствует)</i>", self.meta_style))
@@ -254,17 +272,17 @@ class PDFGenerator:
         precondition = testcase_data.get('precondition', '') or testcase_data.get('preconditionHtml', '')
         if precondition:
             story.append(Paragraph("🔧 Предусловия", self.heading_style))
-            precondition = clean_html(precondition)
-            if precondition:
-                for line in precondition.split('\n'):
+            prepared_precondition = self._prepare_text(precondition)
+            if prepared_precondition:
+                for line in prepared_precondition.split('\n'):
                     line = line.strip()
                     if line:
                         if line.startswith('*') or line.startswith('-') or line.startswith('•'):
-                            story.append(Paragraph(f"• {html.escape(line[1:].strip())}", self.normal_style))
+                            story.append(Paragraph(f"• {line[1:].strip()}", self.normal_style))
                         else:
-                            story.append(Paragraph(html.escape(line), self.normal_style))
+                            story.append(Paragraph(line, self.normal_style))
             else:
-                story.append(Paragraph("<i>(предусловия пустые после очистки HTML)</i>", self.meta_style))
+                story.append(Paragraph("<i>(предусловия пустые после очистки)</i>", self.meta_style))
         else:
             story.append(Paragraph("🔧 Предусловия", self.heading_style))
             story.append(Paragraph("<i>(отсутствуют)</i>", self.meta_style))
@@ -287,11 +305,11 @@ class PDFGenerator:
         expected = testcase_data.get('expectedResult', '') or testcase_data.get('expectedResultHtml', '')
         if expected:
             story.append(Paragraph("✅ Ожидаемый результат (общий)", self.heading_style))
-            expected = clean_html(expected)
-            if expected:
-                story.append(Paragraph(html.escape(expected), self.normal_style))
+            prepared_expected = self._prepare_text(expected)
+            if prepared_expected:
+                story.append(Paragraph(prepared_expected, self.normal_style))
             else:
-                story.append(Paragraph("<i>(ожидаемый результат пустой после очистки HTML)</i>", self.meta_style))
+                story.append(Paragraph("<i>(ожидаемый результат пустой после очистки)</i>", self.meta_style))
         story.append(Spacer(1, 5*mm))
         
         # Комментарии
@@ -306,7 +324,7 @@ class PDFGenerator:
                     date = format_timestamp(comment.get('createdDate'))
                     if text:
                         story.append(Paragraph(f"• {author} ({date}):", self.meta_style))
-                        story.append(Paragraph(f"  {clean_html(text)}", self.normal_style))
+                        story.append(Paragraph(f"  {self._prepare_text(text)}", self.normal_style))
         
         # История изменений
         audit = testcase_data.get('audit', {})
@@ -377,7 +395,6 @@ class PDFGenerator:
         # Заголовок
         story.append(Paragraph("Тест-план NT-PROXY", self.title_style))
         story.append(Paragraph(f"#{testplan_id}", self.title_style))
-        import datetime
         story.append(Paragraph(f"Сгенерировано: {datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S')}", self.date_style))
         story.append(Spacer(1, 10*mm))
         
@@ -398,7 +415,7 @@ class PDFGenerator:
                 
                 # Заголовок тест-кейса
                 story.append(Paragraph(
-                    f"{test_counter}. {html.escape(tc_name)} [ID: {tc_id}]",
+                    f"{test_counter}. {self._prepare_text(tc_name)} [ID: {tc_id}]",
                     self.subheading_style
                 ))
                 
@@ -422,25 +439,25 @@ class PDFGenerator:
                 # Описание
                 desc = tc.get('description', '') or tc.get('descriptionHtml', '')
                 if desc:
-                    desc = clean_html(desc)
-                    if desc:
+                    prepared_desc = self._prepare_text(desc)
+                    if prepared_desc:
                         story.append(Paragraph("<b>Описание:</b>", self.bold_style))
-                        story.append(Paragraph(html.escape(desc), self.normal_style))
+                        story.append(Paragraph(prepared_desc, self.normal_style))
                         story.append(Spacer(1, 2*mm))
                 
                 # Предусловия
                 precondition = tc.get('precondition', '') or tc.get('preconditionHtml', '')
                 if precondition:
-                    precondition = clean_html(precondition)
-                    if precondition:
+                    prepared_precondition = self._prepare_text(precondition)
+                    if prepared_precondition:
                         story.append(Paragraph("<b>Предусловия:</b>", self.bold_style))
-                        for line in precondition.split('\n'):
+                        for line in prepared_precondition.split('\n'):
                             line = line.strip()
                             if line:
                                 if line.startswith('*') or line.startswith('-') or line.startswith('•'):
-                                    story.append(Paragraph(f"• {html.escape(line[1:].strip())}", self.normal_style))
+                                    story.append(Paragraph(f"• {line[1:].strip()}", self.normal_style))
                                 else:
-                                    story.append(Paragraph(html.escape(line), self.normal_style))
+                                    story.append(Paragraph(line, self.normal_style))
                         story.append(Spacer(1, 2*mm))
                 
                 # Шаги
@@ -454,21 +471,20 @@ class PDFGenerator:
                 # Ожидаемый результат (общий)
                 expected = tc.get('expectedResult', '') or tc.get('expectedResultHtml', '')
                 if expected:
-                    expected = clean_html(expected)
-                    if expected:
+                    prepared_expected = self._prepare_text(expected)
+                    if prepared_expected:
                         story.append(Paragraph("<b>Ожидаемый результат (общий):</b>", self.bold_style))
-                        story.append(Paragraph(html.escape(expected), self.normal_style))
+                        story.append(Paragraph(prepared_expected, self.normal_style))
                         story.append(Spacer(1, 2*mm))
                 
-                # Разделитель между тест-кейсами (простая линия, не разрыв страницы)
+                # Разделитель между тест-кейсами
                 story.append(Spacer(1, 3*mm))
                 story.append(Paragraph("-" * 80, self.meta_style))
                 story.append(Spacer(1, 3*mm))
                 
                 test_counter += 1
             
-            # Между разделами добавляем разрыв страницы (опционально)
-            # Если хотите убрать и это, закомментируйте следующие строки
+            # Между разделами добавляем разрыв страницы
             if section_idx < len(sections):
                 story.append(PageBreak())
         

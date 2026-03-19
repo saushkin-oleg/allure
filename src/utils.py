@@ -1,4 +1,55 @@
+"""
+Утилиты для проекта Allure TestOps Exporter
+"""
+
+import re
+from datetime import datetime
 from typing import Dict, List, Optional
+
+
+def clean_html(html_content: Optional[str]) -> str:
+    """Очистка HTML и преобразование в текст"""
+    if not html_content:
+        return ""
+    # Удаляем HTML теги
+    text = re.sub(r'<[^>]+>', '', html_content)
+    # Заменяем HTML entities
+    text = text.replace('&nbsp;', ' ').replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
+    text = text.replace('&quot;', '"').replace('&#39;', "'").replace('&#x2F;', '/')
+    # Убираем множественные переносы строк
+    text = re.sub(r'\n\s*\n', '\n\n', text)
+    # Убираем лишние пробелы в начале и конце каждой строки
+    lines = [line.strip() for line in text.split('\n')]
+    text = '\n'.join(lines)
+    return text.strip()
+
+
+def remove_bold_markers(text: str) -> str:
+    """
+    Удаляет маркдаун-разметку **жирный текст** из строки
+    
+    Args:
+        text: исходный текст с маркдаун-разметкой
+        
+    Returns:
+        текст без маркдаун-разметки
+    """
+    if not text:
+        return ""
+    # Удаляем ** с обоих сторон
+    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+    return text
+
+
+def format_timestamp(timestamp: Optional[int]) -> str:
+    """Форматирование timestamp в дату"""
+    if not timestamp:
+        return "Не указано"
+    try:
+        return datetime.fromtimestamp(timestamp / 1000).strftime('%d.%m.%Y %H:%M:%S')
+    except:
+        return str(timestamp)
+
 
 def parse_steps(step_data: Optional[Dict]) -> List[Dict]:
     """
