@@ -41,17 +41,20 @@ text
 ```bash
 git clone <repository-url>
 cd allure-testops-exporter
+```
 Установите зависимости:
 
-bash
+```
 pip install requests reportlab
+```
 Создайте файл конфигурации:
 
-bash
+```bash
 # Запустите скрипт для создания шаблона
 python main.py
+```
 Или создайте config.json вручную:
-
+```
 json
 {
     "api_token": "your_api_token_here",
@@ -62,9 +65,11 @@ json
     "project_id": 3,
     "filter_prefix": "NTPR"
 }
-Использование
+```
+
+## Использование
 Основной скрипт с CLI
-bash
+```bash
 # Экспорт тест-плана и одного тест-кейса (режим по умолчанию)
 python main.py
 
@@ -85,16 +90,19 @@ python main.py --no-raw
 
 # С включением сырых данных в PDF
 python main.py --include-raw-pdf
+```
 Отдельные скрипты
 Экспорт одного тест-кейса (отладка):
 
-bash
+```bash
 python debug_testcase.py
+```
 Экспорт всего тест-плана:
 
-bash
+```bash
 python export_testplan.py
-Параметры командной строки
+```
+### Параметры командной строки
 Параметр	Описание
 --config, -c	Путь к файлу конфигурации (по умолчанию: config.json)
 --mode, -m	Режим экспорта: testplan, single, both (по умолчанию: both)
@@ -112,7 +120,7 @@ python export_testplan.py
 
 Мета-информация (даты создания/изменения, автор, теги)
 
-Описание
+## Описание
 
 Предусловия (с маркированным списком)
 
@@ -138,24 +146,27 @@ Helvetica (Linux/macOS) - без кириллицы
 
 Для Linux/macOS рекомендуется установить шрифт с кириллицей:
 
-bash
+```bash
 # Ubuntu/Debian
 apt-get install fonts-liberation
 
 # Или укажите путь к шрифту в коде:
 pdf_gen = PDFGenerator(font_path="/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf")
+```
 Примеры
 Пример экспорта тест-плана:
-bash
+```bash
 python main.py --mode testplan --testplan-id 39
+```
 Результат: exports/testplan/testplan_39_full.pdf
 
 Пример экспорта одного тест-кейса:
-bash
+```bash
 python main.py --mode single --testcase-id 4448
+```
 Результат: exports/debug/testcase_4448_debug.pdf
 
-Особенности
+## Особенности
 Группировка по разделам: тест-кейсы автоматически группируются по префиксам в квадратных скобках (например, [NTPR-01-01])
 
 Иерархия шагов: правильно отображаются вложенные шаги и ожидаемые результаты
@@ -164,7 +175,7 @@ python main.py --mode single --testcase-id 4448
 
 Отладка: сохраняются сырые JSON для анализа проблем
 
-Устранение неполадок
+## Устранение неполадок
 Проблемы с кириллицей
 Если в PDF отображаются квадратики вместо русских букв:
 
@@ -172,7 +183,7 @@ python main.py --mode single --testcase-id 4448
 
 Для Linux установите fonts-liberation или ttf-mscorefonts-installer
 
-Ошибки API
+## Ошибки API
 Проверьте правильность API токена в config.json
 
 Убедитесь, что URL Allure доступен из вашей сети
@@ -199,5 +210,5 @@ python main.py --mode single --testcase-id 4448
 
 Маркированные списки формируются в _format_step()
 
-Лицензия
+## Лицензия
 MIT
