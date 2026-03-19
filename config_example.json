@@ -1,0 +1,9 @@
+{
+    "api_token": "5555555-5555-5555-55555-5555555",
+    "allure_url": "https://allure-testops.office.it-bastion.com",
+    "output_dir": "./exports",
+    "testplan_id": 39,
+    "testcase_id": 4448,
+    "project_id": 3,
+    "filter_prefix": "NTPR"
+}
