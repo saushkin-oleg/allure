@@ -66,10 +66,10 @@ cp config_example.json config.json
     "api_token": "ваш-api-токен",
     "allure_url": "https://allure-testops.example.com",
     "output_dir": "./exports",
-    "testplan_id": 39,
-    "testcase_id": 4448,
+    "testplan_id": 1,
+    "testcase_id": 2,
     "project_id": 3,
-    "filter_prefix": "NTPR"
+    "filter_prefix": "EXAMPLE"
 }
 ```
 
