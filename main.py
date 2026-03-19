@@ -26,12 +26,12 @@ logger = logging.getLogger(__name__)
 
 CONFIG_TEMPLATE = {
     "api_token": "your_api_token_here",
-    "allure_url": "https://allure-testops.office.it-bastion.com",
+    "allure_url": "https://allure-testops.example.com",
     "output_dir": "./exports",
-    "testplan_id": 39,
-    "testcase_id": 4448,
+    "testplan_id": 1,
+    "testcase_id": 2,
     "project_id": 3,
-    "filter_prefix": "NTPR"
+    "filter_prefix": "EXAMPLE"
 }
 
 def load_config(config_path: str = "config.json") -> Dict:
