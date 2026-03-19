@@ -21,21 +21,17 @@
 ```
 allure/
 ├── main.py                  # Точка входа, CLI-интерфейс
-├── config_example.json      # Пример конфигурации
-├── requirements.txt         # Зависимости
+├── config_example.json      # Пример конфигурации (скопируйте в config.json)
+├── requirements.txt         # Зависимости Python
 ├── src/
 │   ├── allure_api.py        # Работа с Allure TestOps REST API
-│   ├── pdf_generator.py     # Генерация PDF (стили, рендер)
-│   ├── exporters/
-│   │   ├── testplan_exporter.py      # Экспорт тест-плана
-│   │   └── single_test_exporter.py  # Экспорт одного тест-кейса
-│   └── utils/
-│       ├── step_parser.py    # Парсинг и рекурсивный обход шагов
-│       ├── html_cleaner.py   # Очистка HTML/Markdown → plain text
-│       └── date_formatter.py # Форматирование временных меток
-└── scripts/
-    ├── export_testplan.py    # Standalone-скрипт экспорта тест-плана
-    └── debug_testcase.py     # Standalone-скрипт отладки одного кейса
+│   ├── pdf_generator.py     # Генерация PDF (стили, шрифты, рендер)
+│   ├── utils.py             # Вспомогательные функции (очистка HTML/Markdown,
+│   │                        # парсинг шагов, форматирование дат)
+│   └── exporters/
+│       ├── testplan_exporter.py      # Экспорт тест-плана
+│       └── single_test_exporter.py  # Экспорт одного тест-кейса
+└── scripts/                 # Вспомогательные скрипты
 ```
 
 ---
@@ -130,18 +126,6 @@ python main.py --no-raw
 | `--project-id` | — | из конфига | ID проекта |
 | `--output-dir` | — | из конфига | Директория для сохранения PDF |
 | `--no-raw` | — | `false` | Не сохранять промежуточные JSON-файлы |
-
-### Standalone-скрипты
-
-Для быстрого запуска без параметров можно использовать скрипты из папки `scripts/` — они читают `config.json` из корня и запускаются напрямую:
-
-```bash
-# Экспорт тест-плана
-python scripts/export_testplan.py
-
-# Отладка одного тест-кейса
-python scripts/debug_testcase.py
-```
 
 ---
 
