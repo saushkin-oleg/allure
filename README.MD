@@ -14,26 +14,26 @@
 - 🎨 Чистое форматирование: отступы, маркированные списки, иерархия шагов
 
 ## Структура проекта
-llure-testops-exporter/
-├── main.py # Главный скрипт с CLI интерфейсом
-├── config.json # Конфигурационный файл
-├── debug_testcase.py # Скрипт для отладки одного тест-кейса
-├── export_testplan.py # Скрипт для экспорта тест-плана
-├── src/
-│ ├── allure_api.py # Работа с Allure TestOps API
-│ ├── pdf_generator.py # Генерация PDF-отчетов
-│ ├── exporters/
-│ │ ├── single_test_exporter.py # Экспорт одного тест-кейса
-│ │ └── testplan_exporter.py # Экспорт тест-плана
-│ └── utils/
-│ ├── step_parser.py # Парсинг шагов из API
-│ ├── html_cleaner.py # Очистка HTML-тегов
-│ └── date_formatter.py # Форматирование дат
-└── exports/ # Директория для сохранения результатов
-├── debug/ # Отладочные экспорты
-└── testplan/ # Экспорты тест-планов
-
-text
+```
+llure-testops-exporter/<br>
+├── main.py # Главный скрипт с CLI интерфейсом<br>
+├── config.json # Конфигурационный файл<br>
+├── debug_testcase.py # Скрипт для отладки одного тест-кейса<br>
+├── export_testplan.py # Скрипт для экспорта тест-плана<br>
+├── src/<br>
+│ ├── allure_api.py # Работа с Allure TestOps API<br>
+│ ├── pdf_generator.py # Генерация PDF-отчетов<br>
+│ ├── exporters/<br>
+│ │ ├── single_test_exporter.py # Экспорт одного тест-кейса<br>
+│ │ └── testplan_exporter.py # Экспорт тест-плана<br>
+│ └── utils/<br>
+│ ├── step_parser.py # Парсинг шагов из API<br>
+│ ├── html_cleaner.py # Очистка HTML-тегов<br>
+│ └── date_formatter.py # Форматирование дат<br>
+└── exports/ # Директория для сохранения результатов<br>
+├── debug/ # Отладочные экспорты<br>
+└── testplan/ # Экспорты тест-планов<br>
+```
 
 ## Установка
 
